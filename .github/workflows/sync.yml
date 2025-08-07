@@ -1,0 +1,31 @@
+name: Sync Fork
+
+on:
+  schedule:
+    - cron: '25 20 * * *'  # 每天早上4:25(北京时间)自动执行
+  workflow_dispatch:       # 支持手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Add Upstream
+        run: |
+          git remote add upstream https://github.com/bia-pain-bache/BPB-Worker-Panel.git
+          git fetch upstream
+          git checkout main       # 如果默认分支是 main
+          git merge upstream/main # 如果你想用 rebase 可改成 git rebase upstream/main
+
+      - name: Push Changes
+        run: |
+          git push origin main
